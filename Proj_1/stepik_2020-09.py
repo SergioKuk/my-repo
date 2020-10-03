@@ -148,7 +148,7 @@ while ex != 0:
         print('\n',EXAMPLE2DESCR,'\n')
         list_example_2()
     elif mode == 3:
-#        print('\n',EXAMPLE3DESCR,'\n')
+        print('\n',EXAMPLE3DESCR,'\n')
         list_example_3()
     elif mode == 4:
 #        print('\n',EXAMPLE4DESCR,'\n')
