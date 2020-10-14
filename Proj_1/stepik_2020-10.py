@@ -743,8 +743,9 @@ def f3414():
 В качестве ответа укажите вывод программы, а не саму программу.
 Слова, написанные в разных регистрах, считаются одинаковыми.'''
 
-def f342():
+def f342():                             # Плюсы: очень быстро (библию обработал за 0,55 сек)
     fname = input('File name: ')
+    t1 = timeit.default_timer()
     wset = dict()
     with open(fname,'r') as inf:
         text = [str.strip() for str in inf]
@@ -761,6 +762,7 @@ def f342():
         elif wset[i] == wcnt and i < wrd:
             wrd,wcnt = i,wset[i]
     print(wrd,wcnt)
+    print(timeit.default_timer()-t1)
     return
 
 def f3421():                            # print all words, that are repeated in text
@@ -768,18 +770,111 @@ def f3421():                            # print all words, that are repeated in 
     wset = dict()
     with open(fname,'r') as inf:
         text = [str.strip() for str in inf]
-        print(text)
-        for line in text:
-            if line > '':
-                words = line.split()    # del after debugging
-                print(words)            # -/-
-                for i in line.split():
-                    wset[i] = wset.get(i,0)+1
+    print(text)
+    for line in text:
+        if line > '':
+            print(line.split())     # del after debugging
+            for i in line.split():
+                wset[i] = wset.get(i,0)+1
     print(wset)
-    for i in wset.keys():
-        if wset[i] > 1:
-            print(i,wset[i])
+    for key,val in wset.items():
+        if val > 1:
+            print(key,' ',val)
     return
+
+def f3422():
+    with open('text.txt') as f:
+        words = f.read().lower().split()
+    maxin = 0
+    for word in set(words):
+        word_in_words = words.count(word)
+        if word_in_words > maxin:
+            maxin = word_in_words
+            popular_word = word
+        elif word_in_words == maxin and word < popular_word:
+            popular_word = word
+    print(popular_word, maxin)
+    return
+
+def f3423():                                # Плюс: кратко. Минусы: Работает долго, нет лексикографической сортировки
+    fname = input('File name: ')
+    with open(fname) as f:
+        text = f.read().lower().split()
+    popular_word = max(set(text), key=text.count)   # см. комментарий ниже
+    # popular_word = max(sorted(set(text)), key=text.count)     # лексикографическая сортировка
+    print(popular_word, text.count(popular_word))
+    return
+    '''это именованный параметр функции,который отвечает за критерий сравнения для поиска максимального значения. 
+    В данном случае у нас есть множество уникальных слов ,которые содержатся в  файле(это наша коллекция(set(text) 
+    к которой применяется функция max ) и мы хотим вернуть самое популярное ,которое чаще всего будет встречаться 
+    в тексте. Благодаря ключевому слово key =  мы можем передать любую функцию/метод ,в данном случае передаем count, 
+    отвечающий за подсчет количества вхождений данного слова в тексте, которая/ый будет применяться к каждому элементу 
+    коллекции.  Вот пример, где сначала мы ведем поиск с критерием по умолчанию (лексикографически), а затем находим 
+    максимум по ключевому слову int:
+    lis = ['1','100','111','2']
+    print(max(lis))                         #2
+    print(max(lis,key = lambda x: int(x)))  #111
+    print(max(lis,key = int))               #111 '''
+
+    '''
+    @Егор_Юлдашев, Обрабатывает войну и мир всего за 25 минут. Респект.
+    ...
+    max берет элемент из set(text) и считает для него count, потом повторяет для другого элемента? Т.е. сложность n^2?
+    ...
+    @Игорь_Сокованов, в этом и проблема, что суперкраткие решения могут быть 
+    1) не читаемыми вообще 
+    2) жрать память или процессор (время).
+    У меня код на словаре и без сортировок Войну и Мир (477к слов) смол за 1.4 секунды.'''
+
+
+def f3424():                                    # Плюсы: экономично, кратко, быстро (библию обработал за 0,87 сек)
+    t1 = timeit.default_timer()
+    s, d, m, w = str(), dict(), 0, str()
+    with open("bible.txt", "r") as f:
+        s = f.read().lower().strip().split()
+    s.sort()
+    for word in s:
+        if word in d:
+            d[word] += 1
+        else:
+            d[word] = 1
+    for word in d:
+        if d[word] > m:
+            m = d[word]
+            w = word
+    print(w,m)
+    print(timeit.default_timer()-t1)
+
+    ''' Герман Мальцев
+    К моему большому удивлению, работает быстро. Пробовал библию прогнать - заняло около секунды'''
+
+    from collections import Counter
+
+def f3425():
+    with open('Bible.txt', 'r') as file:
+        words = [i.lower() for i in file.read().split()]
+    most_common = Counter(words).most_common(1)[0]
+    print(*most_common)
+    return
+
+    '''Виктор Голованенко
+    Моё решение обрабатывает всю Библию за 1 секунду
+    
+    метод most_common класса Counter возвращает отсортированный по убыванию список значений. 
+    Лексиграфическое сравнение происходит при сортировке.
+    
+    Liudmila Ageeva
+    тут многие пишут про книги. Но при этом не проводят дополнительную обработку данных для удаления знаков препинания. 
+    А значит те слова, после которых, например, была запятая или точка, будут выделены в отдельные группы и потеряются 
+    при подсчете.
+
+    @Liudmila_Ageeva, вы абсолютно правы. Чтобы это исключить, нужно вызвать метод строки replace, вот так:
+    
+    with open('Bible.txt', 'r') as file:
+        words = [i.lower() for i in file.read().replace(';', '').replace(',', '').replace(':', '').split()]    
+    most_common = Counter(words).most_common(1)[0]
+    print(*most_common)
+    '''
 
 # =================================================================================================
 #                            Main
@@ -787,6 +882,9 @@ def f3421():                            # print all words, that are repeated in 
 
 import timeit
 
-f3421()
+f3424()
 
 
+    # t1 = timeit.default_timer()
+
+    # print(timeit.default_timer()-t1)
