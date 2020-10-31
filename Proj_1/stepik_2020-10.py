@@ -1068,6 +1068,144 @@ def f371():
     return
 
 
+def command(c, res):
+    if not c in dct: dct[c] = [0, 0, 0, 0, 0]
+    dct[c] = [dct[c][0] + 1,
+                dct[c][1] + 1 if res == 3 else dct[c][1],
+                dct[c][2] + 1 if res == 1 else dct[c][2],
+                dct[c][3] + 1 if res == 0 else dct[c][3],
+                dct[c][4] + res,]
+    return
+
+def f3711():
+    dct = {}
+    for i in range(int(input())):
+        c1, g1, c2, g2 = input().split(';')
+        command(c1, 3 if g1 > g2 else 1 if g1 == g2 else 0)
+        command(c2, 3 if g2 > g1 else 1 if g1 == g2 else 0)
+    for c in dct:
+        print('{}:{} {} {} {} {}'.format(c, *dct[c]))
+
+
+def points_counter(team, goals1, goals2):
+    if team not in d:
+        d[team] = [0] * 5
+    d[team][0] += 1
+    d[team][1] += int(goals1 > goals2)
+    d[team][2] += int(goals1 == goals2)
+    d[team][3] += int(goals1 < goals2)
+    d[team][4] += int(goals1 > goals2) * 3 + int(goals1 == goals2)
+    return
+
+def f3712():
+    n, d = int(input()), {}
+    for _ in range(n):
+        k = input().split(';')
+        points_counter(k[0], int(k[1]), int(k[3]))
+        points_counter(k[2], int(k[3]), int(k[1]))
+    for k, v in d.items():
+        print(k + ":" + str(v[0]), v[1], v[2], v[3], v[4])
+
+
+# ========================================== 3.7.2 ===========================================
+'''В какой-то момент в Институте биоинформатики биологи перестали понимать, что говорят информатики: 
+они говорили каким-то странным набором звуков.
+В какой-то момент один из биологов раскрыл секрет информатиков: они использовали при общении подстановочный шифр, 
+т.е. заменяли каждый символ исходного сообщения на соответствующий ему другой символ. Биологи раздобыли ключ к шифру 
+и теперь нуждаются в помощи:
+Напишите программу, которая умеет шифровать и расшифровывать шифр подстановки. Программа принимает на вход две строки 
+одинаковой длины, на первой строке записаны символы исходного алфавита, на второй строке — символы конечного алфавита, 
+после чего идёт строка, которую нужно зашифровать переданным ключом, и ещё одна строка, которую нужно расшифровать.
+Пусть, например, на вход программе передано:
+abcd
+*d%#
+abacabadaba
+#*%*d*%
+Это значит, что символ a исходного сообщения заменяется на символ * в шифре, b заменяется на d, c — на % и d — на #.
+Нужно зашифровать строку abacabadaba и расшифровать строку #*%*d*% с помощью этого шифра. Получаем следующие строки, 
+которые и передаём на вывод программы:
+*d*%*d*#*d*
+dacabac'''
+
+def f372():         # решение со словарями
+    al1 = input()
+    al2 = input()
+    st1 = input()
+    st2 = input()
+    so1,so2 = '',''
+    cipher = {al1[i]:al2[i] for i in range(len(al1))}
+    # cipher2 = {al2[i]:al1[i] for i in range(len(al2))}
+    cipher2 = dict(zip(al2,al1))
+    # cipher2 = {v:k for k, v in cipher.items()}
+    # print(cipher)
+    # print(cipher2)
+    for sign in st1:
+        if sign in cipher:
+            so1 += cipher[sign]
+            # print(cipher[sign])
+        else:
+            so1 += sign
+    for sign in st2:
+        if sign in cipher2:
+            so2 += cipher2[sign]
+        else:
+            so2 += sign
+    print(so1+'\n'+so2)
+    return
+
+
+def f3721():        # решение без словарей
+    al1 = input()
+    al2 = input()
+    st1 = input()
+    st2 = input()
+    so1,so2 = '',''
+    for sign in st1:
+        if sign in al1:
+            so1 += al2[al1.find(sign)]
+        else:
+            so1 += sign
+    for sign in st2:
+        if sign in al2:
+            so2 += al1[al2.find(sign)]
+        else:
+            so2 += sign
+    print(so1+'\n'+so2)
+    return
+
+
+def f3722():        # Денис Хаит
+    a,b,c,d=input(),input(),input(),input()
+    print(''.join(b[a.index(i)] for i in c))
+    print(''.join(a[b.index(i)] for i in d))
+    return
+
+
+def code(source, res, data):
+    cryptData = ''
+    for char in data:
+        cryptData += res[source.index(char)]
+    return cryptData
+
+def f3723():
+    key1 = input()
+    key2 = input()
+    decode = input()
+    encode = input()
+    print(code(key1, key2, decode))
+    print(code(key2, key1, encode))
+    return
+
+
+def f3724():
+    enc, dec = input(), input()
+    d_enc = dict(zip(enc,dec))
+    d_dec = dict(zip(dec,enc))
+    print(''.join([d_enc[c] for c in input()]))
+    print(''.join([d_dec[c] for c in input()]))
+    return
+
+
 # =================================================================================================
 #                            Main
 # =================================================================================================
@@ -1079,5 +1217,4 @@ import timeit       # оценка скорости вычислений
     # t1 = timeit.default_timer()
     # print(timeit.default_timer()-t1)
 
-f371()
-
+f3723()
